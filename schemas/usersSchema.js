@@ -7,7 +7,8 @@ const typeDefs = `
     id: String,
     name: String,
     email: String,
-    password: String
+    password: String,
+    token: String
   }
   type Query {
     users: [User],

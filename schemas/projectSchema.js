@@ -4,13 +4,7 @@ import projectResolver from '../resolvers/projectResolver';
 const typeDefs = `
 
   type Task {
-    id: String,
-    description: String,
-    creation_date: String,
-    finish_date: String
-  }
-
-  input TaskInput {
+    id: String!,
     description: String,
     creation_date: String,
     finish_date: String
@@ -26,12 +20,15 @@ const typeDefs = `
   }
   type Query {
     projects: [Project],
-    project(id: String!): Project
+    project(id: String!): Project,
+    userProjects(userId: String!): [Project],
   },
   type Mutation {
-    addProject(name: String!, userId: String!, creation_date: String!, task: TaskInput): Project
-    deleteUser(id: String!): Project
-    updateUser(id: String!, name: String!, email: String, password: TaskInput): Project
+    addProject(name: String!, userId: String!, creation_date: String!): Project
+    deleteProject(userId: String!, projectId: String!): Project
+    addTask(userId:String!, projectId:String!, description: String, creation_date: String!): String
+    completeTask(userId: String!, projectId:String!, finish_date: String!, id: String!): String
+    deleteTask(userId: String!, projectId: String!, taskId: String!): String
   }
 `;
 

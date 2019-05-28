@@ -36,8 +36,24 @@ server.post('/login', (req, res) => {
 
     const token = jwt.sign({sub: user.id}, jwtSecret);
 
-    res.send({token});
+    res.send({token, user});
 
+  });
+
+});
+
+
+server.post('/signup', (req, res) => {
+
+  console.log('caiu aqui');
+
+  const {name, email, password} = req.body;
+  
+  userModel.create({name, email, password}, (err, user) => {
+    
+    const token = jwt.sign({sub: user.id}, jwtSecret);
+
+    res.send({token, user});
   });
 
 });
@@ -47,7 +63,7 @@ server.use('/users', bodyParser.json(), graphqlExpress((req) => ({
   context: {user: req.user}
 })));
 
-server.use('/projects', bodyParser.json(), graphqlExpress((res) => ({
+server.use('/projects', bodyParser.json(), graphqlExpress((req) => ({
   schema: projectSchema,
   context: {user: req.user}
 })));
