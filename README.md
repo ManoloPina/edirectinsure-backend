@@ -1,4 +1,4 @@
-# Edirect Insure Front-End
+# Edirect Insure Back-end
 ## Installing dependencies
 
 First of all, it's necessary that you have installed in your machine **MongoDB** and also **Nodejs**. After that you can run the following command:
