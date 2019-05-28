@@ -8,13 +8,17 @@ import cors from 'cors';
 import expressJwt from 'express-jwt';
 import userModel from './models/user';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const jwtSecret = Buffer.from('Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt', 'base64');
 const server = express();
+const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const saltRounds = 10;
 
-mongoose.connect('mongodb://localhost:27017/edirectinsurel', {useMongoClient: true});
+mongoose.connect('mongodb://localhost:27017/edirectinsurel', { useMongoClient: true });
 
 const connection = mongoose.connection;
+
 
 connection.once('open', () => {
   console.log('Connection to database was successfull!!');
@@ -26,17 +30,21 @@ server.use(cors(), bodyParser.json(), expressJwt({
 }));
 
 server.post('/login', (req, res) => {
-  const {email, password} = req.body;
-  userModel.findOne({email: email}, (err, user) => {
-    
-    if (!(user && user.password === password)) {
-      res.sendStatus(401);
-      return;
-    }
+  const { email, password } = req.body;
+  userModel.findOne({ email: email }, (err, user) => {
 
-    const token = jwt.sign({sub: user.id}, jwtSecret);
+    bcrypt.compare(password, user.password, (err, response) => {
+      if (!err) {
+        const token = jwt.sign({ sub: user.id }, jwtSecret);
+        res.send({ token, user });
+      }else {
+        res.sendStatus(401);
+        return;
+      }
+    });
 
-    res.send({token, user});
+
+
 
   });
 
@@ -45,27 +53,33 @@ server.post('/login', (req, res) => {
 
 server.post('/signup', (req, res) => {
 
-  console.log('caiu aqui');
+  let { name, email, password } = req.body;
 
-  const {name, email, password} = req.body;
-  
-  userModel.create({name, email, password}, (err, user) => {
-    
-    const token = jwt.sign({sub: user.id}, jwtSecret);
+  bcrypt.hash(myPlaintextPassword, saltRounds, (err, hash) => {
 
-    res.send({token, user});
+    password = hash;
+
+    userModel.create({ name, email, password }, (err, user) => {
+
+      const token = jwt.sign({ sub: user.id }, jwtSecret);
+
+      res.send({ token, user });
+    });
+
   });
+
+
 
 });
 
 server.use('/users', bodyParser.json(), graphqlExpress((req) => ({
   schema: userSchema,
-  context: {user: req.user}
+  context: { user: req.user }
 })));
 
 server.use('/projects', bodyParser.json(), graphqlExpress((req) => ({
   schema: projectSchema,
-  context: {user: req.user}
+  context: { user: req.user }
 })));
 
 
