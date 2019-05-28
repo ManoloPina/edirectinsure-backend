@@ -7,4 +7,4 @@ First of all, it's necessary that you have installed in your machine **MongoDB**
 
 ## Running project
 To run the project you need run the following command:
-npm run build
+```npm run build```
